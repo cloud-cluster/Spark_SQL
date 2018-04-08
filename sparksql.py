@@ -1,38 +1,21 @@
-from pyspark import SparkConf, SparkContext
-from pyspark.sql import HiveContext
+from os.path import expanduser, join, abspath
 
-conf = SparkConf().setAppName('spark_sql_test')
+from pyspark.sql import SparkSession
+from pyspark.sql import Row
 
-sc = SparkContext(conf = conf)
+# warehouse_location points to the default location for managed databases and tables
+warehouse_location = abspath('/var/hive/warehouse')
 
-hc = HiveContext(sc)
+spark = SparkSession \
+    .builder \
+    .appName("Python Spark SQL Hive integration example") \
+    .config("spark.sql.warehouse.dir", warehouse_location) \
+    .enableHiveSupport() \
+    .getOrCreate()
 
-# Parallelize a list and convert each line to a Row
-# Row(id=1, name="a", age=28)
-# datas -> Spark RDD source, type = str
-datas = ['1 a 28', '2 b 39', '3 c 30']
-source = sc.parallelize(datas)
-splits = source.map(lambda line: line.split(" "))
-rows = splits.map(lambda words: Row(id = words[0], name = words[1], age = words[2]))
+# spark is an existing SparkSession
+spark.sql("CREATE TABLE IF NOT EXISTS src (key INT, value STRING) USING hive")
+spark.sql("LOAD DATA LOCAL INPATH 'examples/src/main/resources/kv1.txt' INTO TABLE src")
 
-# Infer the schema, and register the Schema as a table
-people = sc.createDataFrame(people)
-people.createOrReplaceTempView("people")
-
-# SQL can be run over SchemaRDD that have been registered as a table
-people.registerTempTable("people")
-results = hc.sql('select * from people where age > 28 and age < 30')
-results.printSchema()
-
-# The results of SQL queries are SchemaRDD, so register it as a table
-results.registerTempTable("people2")
-results2 = hc.sql('select name from people2')
-results2.printSchema()
-
-# The SchemaRDD support all the normal RDD operations
-results3 = results2.map(lambda row:row.name.upper()).collect()
-
-for result in results3:
-	print 'name:', result
-
-sc.stop()
+# Queries are expressed in HiveQL
+spark.sql("SELECT * FROM t_student").show()
