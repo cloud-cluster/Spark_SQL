@@ -11,7 +11,6 @@ from hbase.ttypes import *
 #### base set
 find_path = '/var/www/html/Spark_SQL/img_store'
 
-
 class HbaseWrite():
     def __init__(self):
         self.tableName = 'img_store222'
@@ -58,3 +57,4 @@ def main(_path):
 if __name__ == '__main__':
     # for get_path in find_path:
         main(find_path)
+
