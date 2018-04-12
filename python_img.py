@@ -9,8 +9,7 @@ from hbase import Hbase
 from hbase.ttypes import *
 
 #### base set
-find_path = r'/var/www/html/Spark_SQL'
-
+find_path = '/var/www/html/Spark_SQL/img_store'
 
 class HbaseWrite():
     def __init__(self):
@@ -56,5 +55,6 @@ def main(_path):
 
 
 if __name__ == '__main__':
-    for get_path in find_path:
-        main(get_path)
+    # for get_path in find_path:
+        main(find_path)
+
